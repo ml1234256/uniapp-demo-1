@@ -15,8 +15,25 @@ const _sfc_main = {
           data: {
             code: res.code
           },
-          success: (res2) => {
-            console.log(res2);
+          success: async (res2) => {
+            const openid = res2.result.data.openid;
+            const db = common_vendor.rn.database();
+            let dbRes = await db.collection("users").where({ openid }).get();
+            if (dbRes.result.data.length > 0) {
+              console.log({ dbRes });
+              return dbRes.result.data[0];
+            } else {
+              const now2 = Date.now();
+              dbRes = await db.collection("users").add({
+                openid,
+                createtime: now2
+              });
+            }
+            return {
+              _id: dbRes.id,
+              openid,
+              createtime: now
+            };
           }
         });
       }

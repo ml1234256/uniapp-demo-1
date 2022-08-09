@@ -23,8 +23,27 @@
 						data:{
 							code:res.code
 						},
-						success: (res) => {
-						        console.log(res);
+						success: async (res) => {
+						        const openid = res.result.data.openid
+								const db = uniCloud.database()
+								let dbRes = await db.collection("users").where({openid: openid}).get()
+								
+								if (dbRes.result.data.length > 0) {
+									console.log({dbRes})
+									return dbRes.result.data[0]
+								} else {
+									const now = Date.now()
+									dbRes = await db.collection("users").add({
+										openid:openid,
+										createtime: now
+									})
+								}
+								return {
+									_id:dbRes.id,
+									openid:openid,
+									createtime:now
+								}
+								
 							}	
 					 })
 				 }
